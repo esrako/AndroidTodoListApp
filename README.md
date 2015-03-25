@@ -2,7 +2,7 @@
 TodoList app with edit feature
 
 This is an Android TodoList application with the functionalities listed below.
-Time spent: 5 hours
+Time spent: 6 hours
 
 Functionalities:
 
@@ -11,6 +11,7 @@ Functionalities:
 * [x] Required: Remove items from the todo list via long click
 * [x] Required: Edit items of the todo list via regular click followed by a save button on a new activity
 * [x] Required: Support for saving todo items after add/edit/delete on a file and retrieve them properly on app restart
+* [x] Optional: Persist the todo items into SQLite instead of a text file by using ActiveAndroid ORM
 
 Walkthrough:
 
