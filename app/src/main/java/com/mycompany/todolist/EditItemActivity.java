@@ -19,6 +19,7 @@ public class EditItemActivity extends ActionBarActivity {
 
     String currentText = "do not show this";
     int position = -1;
+    private static final String TAG = EditItemActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +37,20 @@ public class EditItemActivity extends ActionBarActivity {
         //editItemText.setCursorVisible();
         editItemText.setSelection(currentText.length());
 
+        Log.d(TAG, "Will set up button listener now");
         setupButtonListener();
     }
 
     private void setupButtonListener(){
 
         final Button saveButton = (Button) findViewById(R.id.buttonSaveItem);
+
         saveButton.setOnClickListener(new View.OnClickListener() {
 
             // Called when user clicks Save button
             public void onClick(View v) {
+
+                Log.d(TAG, "button click event");
 
                 EditText editItemText = (EditText) findViewById(R.id.editText);
                 // Prepare data intent
@@ -54,6 +59,7 @@ public class EditItemActivity extends ActionBarActivity {
                 data.putExtra("new_text", editItemText.getText().toString());
                 data.putExtra("pos", position);
 
+                Log.d(TAG, "Done with button click event");
                 // Activity finished ok, return the data
                 setResult(RESULT_OK, data); // set result code and bundle data for response
                 finish(); // closes the activity, pass data to parent
@@ -61,22 +67,6 @@ public class EditItemActivity extends ActionBarActivity {
         });
 
     }
-
-/*
-    public void onSaveItem(View v){
-
-        EditText editItemText = (EditText) findViewById(R.id.editText);
-        // Prepare data intent
-        Intent data = new Intent();
-        // Pass relevant data back as a result
-        data.putExtra("new_text", editItemText.getText().toString());
-        data.putExtra("pos", position);
-
-        // Activity finished ok, return the data
-        setResult(RESULT_OK, data); // set result code and bundle data for response
-        finish(); // closes the activity, pass data to parent
-    }
-*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
