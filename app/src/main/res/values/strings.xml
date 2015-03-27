@@ -6,6 +6,9 @@
     <string name="title_activity_edit_item">EditItemActivity</string>
     <string name="Add_new_item">Add a new item</string>
     <string name="Add_button">Add</string>
-    <string name="edit_item_below">Edit Item Below:</string>
+    <string name="edit_item_desc">Edit item description:</string>
+    <string name="edit_item_pri">Edit priority:</string>
+    <string name="priority">Priority:</string>
     <string name="Save_button">Save</string>
+    <string name="pick_date">Pick a due date</string>
 </resources>

@@ -10,22 +10,22 @@
         android:layout_height="wrap_content"
         android:text="@string/Add_button"
         android:id="@+id/buttonAddItem"
+        android:onClick="onAddItem"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:onClick="onAddItem" />
+        android:layout_below="@+id/pick_date_button" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/addNewItem"
+        android:hint= "@string/Add_new_item"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_toLeftOf="@+id/buttonAddItem"
-        android:layout_toStartOf="@+id/buttonAddItem"
-        android:layout_alignTop="@+id/buttonAddItem"
-        android:hint= "@string/Add_new_item"/>
+        android:layout_toStartOf="@+id/buttonAddItem" />
 
     <ListView
         android:layout_width="wrap_content"
@@ -34,7 +34,49 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/buttonAddItem"
         android:layout_alignRight="@+id/buttonAddItem"
-        android:layout_alignEnd="@+id/buttonAddItem" />
+        android:layout_alignEnd="@+id/buttonAddItem"
+        android:layout_above="@+id/txtDate" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pick_date"
+        android:onClick="showDatePickerDialog"
+        android:id="@+id/pick_date_button"
+        android:layout_above="@+id/addNewItem"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtDate"
+        android:text="jjjjjjjjj"
+        android:layout_above="@+id/addNewItem"
+        android:layout_toRightOf="@+id/pick_date_button"
+        android:layout_toEndOf="@+id/pick_date_button" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/add_Pri"
+        android:layout_alignBottom="@+id/listViewItems"
+        android:layout_toRightOf="@+id/pick_date_button"
+        android:layout_alignRight="@+id/txtDate"
+        android:layout_alignEnd="@+id/txtDate" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/priority"
+        android:id="@+id/txt_prio"
+        android:layout_alignBottom="@+id/listViewItems"
+        android:layout_toLeftOf="@+id/add_Pri"
+        android:layout_alignTop="@+id/add_Pri"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:gravity="right" />
+
 </RelativeLayout>

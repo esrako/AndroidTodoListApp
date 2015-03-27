@@ -1,34 +1,31 @@
 package com.mycompany.todolist;
 
-import android.content.Intent;
+import android.app.DatePickerDialog;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import com.activeandroid.query.Delete;
-
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
-public class TodoActivity extends ActionBarActivity {
+public class TodoActivity extends ActionBarActivity implements EditTodoDialog.EditTodoDialogListener{
 
-    private ArrayList<String> myItems;
-    private ArrayAdapter<String> itemsAdapter;
+    private TodoAdapter adapter;
+    ArrayList<TodoItem> arrayOfMyItems;
     private ListView lvItems;
+    private int mYear=0, mMonth=0, mDay=0;
+    EditText txtDate;
+    EditText etPri;
 
     private final int REQUEST_CODE = 20;
     private static final String TAG = TodoActivity.class.getSimpleName();
@@ -40,13 +37,23 @@ public class TodoActivity extends ActionBarActivity {
         lvItems = (ListView)findViewById(R.id.listViewItems);
 
         Log.d(TAG, "Will initialize myItems");
-        myItems = new ArrayList<String>();
+        arrayOfMyItems = new ArrayList<TodoItem>();
         readItemsFromDB();
 
-        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, myItems);
-        lvItems.setAdapter(itemsAdapter);
+        // Create the adapter to convert the array to views
+        adapter = new TodoAdapter(this, arrayOfMyItems);
+        // Attach the adapter to a ListView
+        lvItems.setAdapter(adapter);
+
+        txtDate = (EditText) findViewById(R.id.txtDate);
+        etPri = (EditText) findViewById(R.id.add_Pri);
+
+        //default values
+        txtDate.setText(todayAsString());
+        etPri.setText("3");
 
         Log.d(TAG, "Will set up view listener now");
+
         setupListViewListener();
     }
 
@@ -56,18 +63,20 @@ public class TodoActivity extends ActionBarActivity {
 
         //Add item to list
         EditText etNewItem = (EditText) findViewById(R.id.addNewItem);
-        itemsAdapter.add(etNewItem.getText().toString());
 
         // Create an item on SQLite
         TodoItem item = new TodoItem();
-        item.priority = 10;
+        item.priority = (int)Integer.parseInt(etPri.getText().toString());
+        item.dueDate = txtDate.getText().toString();
         item.description = etNewItem.getText().toString();
         item.save();
 
-        etNewItem.setText("");
+        adapter.add(item);
 
-        //this writes all items to a file
-        //saveItems();
+        //default values
+        etNewItem.setText("");
+        etPri.setText("3");
+        txtDate.setText(todayAsString());
         Log.d(TAG, "onAddItem() A new item added to the list");
 
     }
@@ -79,16 +88,17 @@ public class TodoActivity extends ActionBarActivity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Log.d(TAG, "long click event");
-                String itemDesc = myItems.get(position);
+                String itemDesc = arrayOfMyItems.get(position).description;
+                long idOfItem = arrayOfMyItems.get(position).getId();
 
                 // Deleting item from SQLite
-                new Delete().from(TodoItem.class).where("Description = ?", itemDesc).execute();
+                TodoItem item = TodoItem.load(TodoItem.class, idOfItem);
+                item.delete();
 
                 //Delete item from list
-                myItems.remove(position);
-                itemsAdapter.notifyDataSetChanged();
+                arrayOfMyItems.remove(position);
+                adapter.notifyDataSetChanged();
 
-                //saveItems();
                 Log.d(TAG, "Done with long click event");
                 return true;
             }
@@ -99,58 +109,11 @@ public class TodoActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Log.d(TAG, "click event");
-
-                //Open Edit page
-                Intent i = new Intent(TodoActivity.this, EditItemActivity.class);
-                String current = myItems.get(position);
-
-                i.putExtra("current_text", current);
-                i.putExtra("pos", position);
-
-                Log.d(TAG, "On click: will start activity for result");
-
-                startActivityForResult(i, REQUEST_CODE);
-
+                showEditDialog(position);
                 Log.d(TAG, "Done with click event");
             }
         }); ;
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        Log.d(TAG, "OnActivityResult() begin");
-
-        // REQUEST_CODE is defined above
-        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-
-            Log.d(TAG, "Extracting extras");
-
-            // Extract name value from result extras
-            String newText = data.getExtras().getString("new_text");
-            int position = data.getExtras().getInt("pos", 0);
-            String oldDesc = myItems.get(position);
-
-            // Deleting item from SQLite
-            new Delete().from(TodoItem.class).where("Description = ?", oldDesc).execute();
-
-
-            // Create an item
-            TodoItem item = new TodoItem();
-            item.priority = 10;
-            item.description = newText;
-            item.save();
-
-            myItems.set(position, newText);
-            itemsAdapter.notifyDataSetChanged();
-
-            //saveItems();
-            Log.d(TAG, "Done with editing item");
-
-        }
-    }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -180,39 +143,88 @@ public class TodoActivity extends ActionBarActivity {
     private void readItemsFromDB(){
 
         Log.d(TAG, "Will read items from DB");
-
         List<TodoItem> allItems = TodoItem.getAllItems();
-        for(TodoItem eachItem: allItems){
-            myItems.add(eachItem.description);
-        }
+        arrayOfMyItems = (ArrayList<TodoItem>)allItems;
         Log.d(TAG, "Done with reading items from DB");
 
     }
 
-    /*
-     * Reads all lines from the file to the items
-     */
-    private void readItems(){
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try{
-            myItems = new ArrayList<String>(FileUtils.readLines(todoFile));
-        }catch (IOException e){
-            myItems = new ArrayList<String>();
-            e.printStackTrace();
-        }
+    private void showEditDialog(int position) {
+        FragmentManager fm = getSupportFragmentManager();
+        String oldDesc = arrayOfMyItems.get(position).description;
+        int oldPri = arrayOfMyItems.get(position).priority;
+        EditTodoDialog etDialog = EditTodoDialog.newInstance(position, oldDesc, oldPri, "Edit Item");
+        etDialog.show(fm, "fragment_edit_todo");
     }
 
-    /*
-     * Writes all items to the file at once
-     */
-    private void saveItems(){
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try{
-            FileUtils.writeLines(todoFile, myItems);
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+    @Override
+    public void onFinishEditDialog(int position, String newDesc, int newPri) {
+
+        Log.d(TAG, "Entering onFinishedEditDialog");
+
+        long idOfItem = arrayOfMyItems.get(position).getId();
+        String dued = arrayOfMyItems.get(position).dueDate;
+
+        // Deleting item from SQLite
+        TodoItem item = TodoItem.load(TodoItem.class, idOfItem);
+        item.delete();
+
+        //!!!this way not working-why?
+        //item.description = newText;
+        //item.save();
+
+        // Create an item
+        item = new TodoItem();
+        item.priority = newPri;
+        item.dueDate = dued;
+        item.description = newDesc;
+        item.save();
+
+        arrayOfMyItems.set(position, item);
+        adapter.notifyDataSetChanged();
+
+        Log.d(TAG, "Done with editing item onFinishedEditDialog");
+    }
+
+    public void showDatePickerDialog(View v) {
+
+        Log.d(TAG, "Entering showDatePickerDialog");
+
+        // Process to get Current Date
+        final Calendar c = Calendar.getInstance();
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        // Launch Date Picker Dialog
+        DatePickerDialog dpd = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        // Display Selected date in textbox
+                        txtDate.setText(dateToString(year, monthOfYear, dayOfMonth));
+                    }
+                }, mYear, mMonth, mDay);
+
+        Log.d(TAG, "mYear: " + mYear + ", mMonth: " + mMonth + ", mDay: " + mDay);
+        Log.d(TAG, "Done with showTimePickerDialog");
+        dpd.show();
+    }
+
+    //gets String version of current date
+    private String todayAsString(){
+
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+
+        return dateToString(year, month, day);
+    }
+
+    //gets String version of given date
+    private String dateToString(int year, int month, int day){
+        return year + "-" + (month+1) + "-" + day;
     }
 }
