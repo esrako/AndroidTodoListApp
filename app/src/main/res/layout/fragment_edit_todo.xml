@@ -37,6 +37,17 @@ android:layout_gravity="center" android:orientation="vertical"  >
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/pick_date"
+        android:id="@+id/pick_date_button" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtDate"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/Save_button"
         android:id="@+id/buttonSaveItem"
         android:layout_below="@+id/editText"

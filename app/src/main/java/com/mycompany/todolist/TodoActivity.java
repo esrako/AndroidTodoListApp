@@ -153,17 +153,17 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
         FragmentManager fm = getSupportFragmentManager();
         String oldDesc = arrayOfMyItems.get(position).description;
         int oldPri = arrayOfMyItems.get(position).priority;
-        EditTodoDialog etDialog = EditTodoDialog.newInstance(position, oldDesc, oldPri, "Edit Item");
+        String oldDue = arrayOfMyItems.get(position).dueDate;
+        EditTodoDialog etDialog = EditTodoDialog.newInstance(this, position, oldDesc, oldPri, oldDue, "Edit Item");
         etDialog.show(fm, "fragment_edit_todo");
     }
 
     @Override
-    public void onFinishEditDialog(int position, String newDesc, int newPri) {
+    public void onFinishEditDialog(int position, String newDesc, int newPri, String newDue) {
 
         Log.d(TAG, "Entering onFinishedEditDialog");
 
         long idOfItem = arrayOfMyItems.get(position).getId();
-        String dued = arrayOfMyItems.get(position).dueDate;
 
         // Deleting item from SQLite
         TodoItem item = TodoItem.load(TodoItem.class, idOfItem);
@@ -176,7 +176,7 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
         // Create an item
         item = new TodoItem();
         item.priority = newPri;
-        item.dueDate = dued;
+        item.dueDate = newDue;
         item.description = newDesc;
         item.save();
 
@@ -213,7 +213,7 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
     }
 
     //gets String version of current date
-    private String todayAsString(){
+    public static String todayAsString(){
 
         Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);
@@ -224,7 +224,7 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
     }
 
     //gets String version of given date
-    private String dateToString(int year, int month, int day){
+    public static String dateToString(int year, int month, int day){
         return year + "-" + (month+1) + "-" + day;
     }
 }
