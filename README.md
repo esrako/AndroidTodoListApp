@@ -2,7 +2,7 @@
 TodoList app with edit feature
 
 This is an Android TodoList application with the functionalities listed below.
-Time spent: 6 hours
+Time spent: 9 hours
 
 Functionalities:
 
@@ -12,6 +12,10 @@ Functionalities:
 * [x] Required: Edit items of the todo list via regular click followed by a save button on a new activity
 * [x] Required: Support for saving todo items after add/edit/delete on a file and retrieve them properly on app restart
 * [x] Optional: Persist the todo items into SQLite instead of a text file by using ActiveAndroid ORM
+* [x] Optional: Use of a custom adapter to improve the style of todo items in list
+* [x] Optional: Support for picking due dates for todo items via DatePickerDialog and display within list view
+* [x] Optional: Use of a DialogFragment instead of new activity for editing items
+* [x] Optional: Support for picking priority for todo items and display within list view and support for editing priority
 
 Walkthrough:
 
