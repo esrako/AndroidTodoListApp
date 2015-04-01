@@ -22,6 +22,6 @@ Walkthrough:
 
 ![alt tag](https://github.com/esrako/TodoList/blob/master/todo_2.gif)
 
-Similar walkthrough when device language set as Turkish:
+Similar walkthrough when device language is set as Turkish:
 
 ![alt tag](https://github.com/esrako/TodoList/blob/master/todo_tr.gif)
