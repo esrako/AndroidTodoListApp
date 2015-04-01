@@ -1,6 +1,7 @@
 package com.mycompany.todolist;
 
 import android.app.DatePickerDialog;
+import android.database.Cursor;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -20,37 +21,34 @@ import java.util.List;
 
 public class TodoActivity extends ActionBarActivity implements EditTodoDialog.EditTodoDialogListener{
 
-    private TodoAdapter adapter;
-    ArrayList<TodoItem> arrayOfMyItems;
+    private TodoCursorAdapter todoAdapter;
     private ListView lvItems;
     private int mYear=0, mMonth=0, mDay=0;
-    EditText txtDate;
-    EditText etPri;
-
-    private final int REQUEST_CODE = 20;
+    private EditText txtDesc;
+    private EditText txtDate;
+    private EditText etPri;
     private static final String TAG = TodoActivity.class.getSimpleName();
+    private static int DEFAULT_PRIORITY = 3;
+    private TodoItem itemToBeEdited = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todo);
+
+        Log.d(TAG, "Will initialize lvItems");
+
+        todoAdapter = new TodoCursorAdapter(this, TodoItem.fetchResultCursor());
         lvItems = (ListView)findViewById(R.id.listViewItems);
+        lvItems.setAdapter(todoAdapter);
 
-        Log.d(TAG, "Will initialize myItems");
-        arrayOfMyItems = new ArrayList<TodoItem>();
-        readItemsFromDB();
-
-        // Create the adapter to convert the array to views
-        adapter = new TodoAdapter(this, arrayOfMyItems);
-        // Attach the adapter to a ListView
-        lvItems.setAdapter(adapter);
-
+        txtDesc = (EditText) findViewById(R.id.addNewItem);
         txtDate = (EditText) findViewById(R.id.txtDate);
         etPri = (EditText) findViewById(R.id.add_Pri);
 
         //default values
         txtDate.setText(todayAsString());
-        etPri.setText("3");
+        etPri.setText(String.valueOf(DEFAULT_PRIORITY));
 
         Log.d(TAG, "Will set up view listener now");
 
@@ -59,25 +57,23 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
 
     public void onAddItem(View v){
 
-        Log.d(TAG, "onAddItem() adding a new item to the list");
-
-        //Add item to list
-        EditText etNewItem = (EditText) findViewById(R.id.addNewItem);
+        Log.d(TAG, "onAddItem() adding a new item");
 
         // Create an item on SQLite
         TodoItem item = new TodoItem();
         item.priority = (int)Integer.parseInt(etPri.getText().toString());
         item.dueDate = txtDate.getText().toString();
-        item.description = etNewItem.getText().toString();
+        item.description = txtDesc.getText().toString();
         item.save();
 
-        adapter.add(item);
+        //update adapter
+        todoAdapter.changeCursor(TodoItem.fetchResultCursor());
 
-        //default values
-        etNewItem.setText("");
-        etPri.setText("3");
+        //put default values back
+        txtDesc.setText("");
+        etPri.setText(String.valueOf(DEFAULT_PRIORITY));
         txtDate.setText(todayAsString());
-        Log.d(TAG, "onAddItem() A new item added to the list");
+        Log.d(TAG, "onAddItem() A new item added");
 
     }
 
@@ -88,16 +84,13 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Log.d(TAG, "long click event");
-                String itemDesc = arrayOfMyItems.get(position).description;
-                long idOfItem = arrayOfMyItems.get(position).getId();
 
-                // Deleting item from SQLite
-                TodoItem item = TodoItem.load(TodoItem.class, idOfItem);
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                int itemID = cursor.getInt(cursor.getColumnIndexOrThrow("Id"));
+                TodoItem item = TodoItem.load(TodoItem.class, itemID/*id*/);
                 item.delete();
 
-                //Delete item from list
-                arrayOfMyItems.remove(position);
-                adapter.notifyDataSetChanged();
+                todoAdapter.changeCursor(TodoItem.fetchResultCursor());
 
                 Log.d(TAG, "Done with long click event");
                 return true;
@@ -109,7 +102,10 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 Log.d(TAG, "click event");
-                showEditDialog(position);
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                int itemID = cursor.getInt(cursor.getColumnIndexOrThrow("Id"));
+                itemToBeEdited = TodoItem.load(TodoItem.class, itemID/*id*/);
+                showEditDialog();
                 Log.d(TAG, "Done with click event");
             }
         }); ;
@@ -137,51 +133,26 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
         return super.onOptionsItemSelected(item);
     }
 
-    /*
-     * Reads all items from DB and populates items Array
-     */
-    private void readItemsFromDB(){
-
-        Log.d(TAG, "Will read items from DB");
-        List<TodoItem> allItems = TodoItem.getAllItems();
-        arrayOfMyItems = (ArrayList<TodoItem>)allItems;
-        Log.d(TAG, "Done with reading items from DB");
-
-    }
-
-    private void showEditDialog(int position) {
+    private void showEditDialog() {
         FragmentManager fm = getSupportFragmentManager();
-        String oldDesc = arrayOfMyItems.get(position).description;
-        int oldPri = arrayOfMyItems.get(position).priority;
-        String oldDue = arrayOfMyItems.get(position).dueDate;
-        EditTodoDialog etDialog = EditTodoDialog.newInstance(this, position, oldDesc, oldPri, oldDue, "Edit Item");
+        String oldDesc = itemToBeEdited.description;
+        int oldPri = itemToBeEdited.priority;
+        String oldDue = itemToBeEdited.dueDate;
+        EditTodoDialog etDialog = EditTodoDialog.newInstance(this, oldDesc, oldPri, oldDue, getString(R.string.edit_item));
         etDialog.show(fm, "fragment_edit_todo");
     }
 
     @Override
-    public void onFinishEditDialog(int position, String newDesc, int newPri, String newDue) {
+    public void onFinishEditDialog(String newDesc, int newPri, String newDue) {
 
         Log.d(TAG, "Entering onFinishedEditDialog");
 
-        long idOfItem = arrayOfMyItems.get(position).getId();
+        itemToBeEdited.priority = newPri;
+        itemToBeEdited.dueDate = newDue;
+        itemToBeEdited.description = newDesc;
+        itemToBeEdited.save();
 
-        // Deleting item from SQLite
-        TodoItem item = TodoItem.load(TodoItem.class, idOfItem);
-        item.delete();
-
-        //!!!this way not working-why?
-        //item.description = newText;
-        //item.save();
-
-        // Create an item
-        item = new TodoItem();
-        item.priority = newPri;
-        item.dueDate = newDue;
-        item.description = newDesc;
-        item.save();
-
-        arrayOfMyItems.set(position, item);
-        adapter.notifyDataSetChanged();
+        todoAdapter.changeCursor(TodoItem.fetchResultCursor());
 
         Log.d(TAG, "Done with editing item onFinishedEditDialog");
     }

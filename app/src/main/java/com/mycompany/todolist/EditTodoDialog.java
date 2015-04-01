@@ -28,7 +28,6 @@ public class EditTodoDialog extends DialogFragment// implements TextView.OnEdito
     private EditText mEditText;
     private EditText mEditPri;
     private EditText mEditDue;
-    private int mPos;
     private static final String TAG = EditTodoDialog.class.getSimpleName();
     Button saveButton;
     Button pickDateButton;
@@ -36,7 +35,7 @@ public class EditTodoDialog extends DialogFragment// implements TextView.OnEdito
     private Context m_Context;
 
     public interface EditTodoDialogListener {
-        void onFinishEditDialog(int position, String inputText, int inputPri, String inputDue);
+        void onFinishEditDialog(String inputText, int inputPri, String inputDue);
     }
 
     public EditTodoDialog() {
@@ -47,11 +46,10 @@ public class EditTodoDialog extends DialogFragment// implements TextView.OnEdito
         m_Context = conte;
     }
 
-    public static EditTodoDialog newInstance(Context c, int position, String oldDesc, int oldPri, String oldDue, String title) {
+    public static EditTodoDialog newInstance(Context c, String oldDesc, int oldPri, String oldDue, String title) {
         EditTodoDialog frag = new EditTodoDialog(c);
         Bundle args = new Bundle();
 
-        args.putInt("pos", position);
         args.putString("olddesc", oldDesc);
         args.putInt("oldpri", oldPri);
         args.putString("olddue", oldDue);
@@ -66,11 +64,10 @@ public class EditTodoDialog extends DialogFragment// implements TextView.OnEdito
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_todo, container);
 
-        mPos = getArguments().getInt("pos");
         String oldDesc = getArguments().getString("olddesc");
         int oldPri = getArguments().getInt("oldpri");
         String oldDue = getArguments().getString("olddue");
-        String title = getArguments().getString("title", "Edit below");
+        String title = getArguments().getString("title");
 
         getDialog().setTitle(title);
 
@@ -104,8 +101,7 @@ public class EditTodoDialog extends DialogFragment// implements TextView.OnEdito
 
                 // Return input text to activity
                 EditTodoDialogListener listener = (EditTodoDialogListener) getActivity();
-                listener.onFinishEditDialog(mPos,
-                                            mEditText.getText().toString(),
+                listener.onFinishEditDialog(mEditText.getText().toString(),
                                             (int)Integer.parseInt(mEditPri.getText().toString()),
                                             mEditDue.getText().toString() );
                 dismiss();

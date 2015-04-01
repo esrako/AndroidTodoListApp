@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Yapılacaklar Listesi</string>
+    <string name="hello_world">Merhaba Dünya!</string>
+    <string name="action_settings">Ayarlar</string>
+    <string name="title_activity_edit_item">Maddeyi Düzenle Etkinliği</string>
+    <string name="Add_new_item">Yeni madde ekle</string>
+    <string name="Add_button">Ekle</string>
+    <string name="edit_item_desc">Madde açıklamasını değiştir:</string>
+    <string name="edit_item_pri">Önceliği değiştir:</string>
+    <string name="priority">Öncelik:</string>
+    <string name="Save_button">Kaydet</string>
+    <string name="pick_date">Tarih seçin</string>
+    <string name="edit_item">Maddeyi Düzenle</string>
+</resources>

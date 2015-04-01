@@ -4,8 +4,10 @@ package com.mycompany.todolist;
  * Created by ekucukog on 3/20/2015.
  */
 
+import android.database.Cursor;
 import android.util.Log;
 
+import com.activeandroid.Cache;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
@@ -41,19 +43,20 @@ public class TodoItem extends Model {
         this.dueDate = due;
     }
 
-    //do not use this one - for reference purposes only
-    public static List<TodoItem> getAll(int priority) {
-        // This is how you execute a query
-        return new Select()
-                .from(TodoItem.class)
-                .where("Priority = ?", priority)
-                .orderBy("Description ASC")
-                .execute();
-    }
-
     public static List<TodoItem> getAllItems() {
         return new Select()
                 .from(TodoItem.class)
                 .execute();
+    }
+
+    // Return cursor for result set for all todo items
+    public static Cursor fetchResultCursor() {
+        String tableName = Cache.getTableInfo(TodoItem.class).getTableName();
+        // Query all items without any conditions
+        String resultRecords = new Select(tableName + ".*, " + tableName + ".Id as _id").
+                from(TodoItem.class).toSql();
+        // Execute query on the underlying ActiveAndroid SQLite database
+        Cursor resultCursor = Cache.openDatabase().rawQuery(resultRecords, null);
+        return resultCursor;
     }
 }
