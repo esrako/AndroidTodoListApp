@@ -13,10 +13,10 @@ Functionalities:
 * [x] Required: Support for saving todo items after add/edit/delete on a file and retrieve them properly on app restart
 * [x] Optional: Persist the todo items into SQLite instead of a text file by using ActiveAndroid ORM
 * [x] Optional: Use of a custom adapter to improve the style of todo items in list
-* [x] Optional: Support for picking due dates for todo items via DatePickerDialog and display within list view
 * [x] Optional: Use of a DialogFragment instead of new activity for editing items
-* [x] Optional: Support for picking priority for todo items and display within list view and support for editing priority
+* [x] Optional: Support for picking due dates for todo items via DatePickerDialog and display within list view and edit due dates
+* [x] Optional: Support for picking priority for todo items and display within list view and edit priority
 
 Walkthrough:
 
-![alt tag](https://github.com/esrako/TodoList/blob/master/todo_01.gif)
+![alt tag](https://github.com/esrako/TodoList/blob/master/todo_2.gif)
