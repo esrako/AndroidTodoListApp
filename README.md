@@ -16,7 +16,7 @@ Functionalities:
 * [x] Optional: Use of a DialogFragment instead of new activity for editing items
 * [x] Optional: Support for picking due dates for todo items via DatePickerDialog and display within list view and edit due dates
 * [x] Optional: Support for picking priority for todo items and display within list view and edit priority
-* [x] Optional: Support for 'turkish' (tr) language
+* [x] Optional: Support for 'turkish' (tr) language via the addition of res/values-tr/string.xml
 
 Walkthrough:
 
