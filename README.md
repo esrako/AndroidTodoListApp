@@ -2,7 +2,7 @@
 TodoList app with edit feature
 
 This is an Android TodoList application with the functionalities listed below.
-Time spent: 9 hours
+Time spent: 10 hours
 
 Functionalities:
 
