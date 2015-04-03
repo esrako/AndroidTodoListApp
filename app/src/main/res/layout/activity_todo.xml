@@ -47,14 +47,16 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <EditText
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtDate"
         android:text="jjjjjjjjj"
-        android:layout_above="@+id/addNewItem"
         android:layout_toRightOf="@+id/pick_date_button"
-        android:layout_toEndOf="@+id/pick_date_button" />
+        android:layout_toEndOf="@+id/pick_date_button"
+        android:editable="false"
+        android:layout_alignTop="@+id/pick_date_button"
+        android:layout_above="@+id/addNewItem" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -62,10 +64,10 @@
         android:inputType="number"
         android:ems="10"
         android:id="@+id/add_Pri"
-        android:layout_alignBottom="@+id/listViewItems"
         android:layout_toRightOf="@+id/pick_date_button"
         android:layout_alignRight="@+id/txtDate"
-        android:layout_alignEnd="@+id/txtDate" />
+        android:layout_alignEnd="@+id/txtDate"
+        android:layout_above="@+id/pick_date_button" />
 
     <TextView
         android:layout_width="wrap_content"

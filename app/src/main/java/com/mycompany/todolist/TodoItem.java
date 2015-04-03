@@ -29,18 +29,18 @@ public class TodoItem extends Model {
     public int priority;
 
     @Column(name = "Duedate")
-    public String dueDate;
+    public long dueDate;
 
     // Make sure to have a default constructor for every ActiveAndroid model
     public TodoItem(){
         super();
     }
 
-    public TodoItem(String description, int priority, String due){
+    public TodoItem(String description, int priority, Date due){
         super();
         this.priority = priority;
         this.description = description;
-        this.dueDate = due;
+        this.dueDate = due.getTime();
     }
 
     public static List<TodoItem> getAllItems() {
@@ -55,6 +55,17 @@ public class TodoItem extends Model {
         // Query all items without any conditions
         String resultRecords = new Select(tableName + ".*, " + tableName + ".Id as _id").
                 from(TodoItem.class).toSql();
+        // Execute query on the underlying ActiveAndroid SQLite database
+        Cursor resultCursor = Cache.openDatabase().rawQuery(resultRecords, null);
+        return resultCursor;
+    }
+
+    // Return cursor for result set for all todo items
+    public static Cursor fetchResultCursorSortedByDate() {
+        String tableName = Cache.getTableInfo(TodoItem.class).getTableName();
+        // Query all items without any conditions
+        String resultRecords = new Select(tableName + ".*, " + tableName + ".Id as _id").
+                from(TodoItem.class).orderBy("Duedate ASC").toSql();
         // Execute query on the underlying ActiveAndroid SQLite database
         Cursor resultCursor = Cache.openDatabase().rawQuery(resultRecords, null);
         return resultCursor;

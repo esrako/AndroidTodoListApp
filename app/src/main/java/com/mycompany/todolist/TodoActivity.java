@@ -13,10 +13,13 @@ import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Date;
 
 
 public class TodoActivity extends ActionBarActivity implements EditTodoDialog.EditTodoDialogListener{
@@ -25,11 +28,13 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
     private ListView lvItems;
     private int mYear=0, mMonth=0, mDay=0;
     private EditText txtDesc;
-    private EditText txtDate;
+    private TextView txtDate;
     private EditText etPri;
-    private static final String TAG = TodoActivity.class.getSimpleName();
-    private static int DEFAULT_PRIORITY = 3;
     private TodoItem itemToBeEdited = null;
+
+    private static final String TAG = TodoActivity.class.getSimpleName();
+    private static final int DEFAULT_PRIORITY = 3;
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +43,12 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
 
         Log.d(TAG, "Will initialize lvItems");
 
-        todoAdapter = new TodoCursorAdapter(this, TodoItem.fetchResultCursor());
+        todoAdapter = new TodoCursorAdapter(this, TodoItem.fetchResultCursorSortedByDate());
         lvItems = (ListView)findViewById(R.id.listViewItems);
         lvItems.setAdapter(todoAdapter);
 
         txtDesc = (EditText) findViewById(R.id.addNewItem);
-        txtDate = (EditText) findViewById(R.id.txtDate);
+        txtDate = (TextView) findViewById(R.id.txtDate);
         etPri = (EditText) findViewById(R.id.add_Pri);
 
         //default values
@@ -62,17 +67,20 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
         // Create an item on SQLite
         TodoItem item = new TodoItem();
         item.priority = (int)Integer.parseInt(etPri.getText().toString());
-        item.dueDate = txtDate.getText().toString();
+        item.dueDate = stringTimeToLong(txtDate.getText().toString());
         item.description = txtDesc.getText().toString();
         item.save();
 
         //update adapter
-        todoAdapter.changeCursor(TodoItem.fetchResultCursor());
+        todoAdapter.changeCursor(TodoItem.fetchResultCursorSortedByDate());
 
         //put default values back
         txtDesc.setText("");
         etPri.setText(String.valueOf(DEFAULT_PRIORITY));
         txtDate.setText(todayAsString());
+
+        Toast.makeText(this, getString(R.string.item_suc_added), Toast.LENGTH_SHORT).show();
+
         Log.d(TAG, "onAddItem() A new item added");
 
     }
@@ -90,7 +98,9 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
                 TodoItem item = TodoItem.load(TodoItem.class, itemID/*id*/);
                 item.delete();
 
-                todoAdapter.changeCursor(TodoItem.fetchResultCursor());
+                todoAdapter.changeCursor(TodoItem.fetchResultCursorSortedByDate());
+
+                Toast.makeText(getApplicationContext(), getString(R.string.item_suc_deleted), Toast.LENGTH_SHORT).show();
 
                 Log.d(TAG, "Done with long click event");
                 return true;
@@ -135,9 +145,12 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
 
     private void showEditDialog() {
         FragmentManager fm = getSupportFragmentManager();
+
         String oldDesc = itemToBeEdited.description;
         int oldPri = itemToBeEdited.priority;
-        String oldDue = itemToBeEdited.dueDate;
+        long ms = itemToBeEdited.dueDate;
+        String oldDue = longTimeToString(ms);
+
         EditTodoDialog etDialog = EditTodoDialog.newInstance(this, oldDesc, oldPri, oldDue, getString(R.string.edit_item));
         etDialog.show(fm, "fragment_edit_todo");
     }
@@ -148,11 +161,13 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
         Log.d(TAG, "Entering onFinishedEditDialog");
 
         itemToBeEdited.priority = newPri;
-        itemToBeEdited.dueDate = newDue;
+        itemToBeEdited.dueDate = stringTimeToLong(newDue);
         itemToBeEdited.description = newDesc;
         itemToBeEdited.save();
 
-        todoAdapter.changeCursor(TodoItem.fetchResultCursor());
+        todoAdapter.changeCursor(TodoItem.fetchResultCursorSortedByDate());
+
+        Toast.makeText(this, getString(R.string.item_suc_edited), Toast.LENGTH_SHORT).show();
 
         Log.d(TAG, "Done with editing item onFinishedEditDialog");
     }
@@ -174,7 +189,10 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         // Display Selected date in textbox
-                        txtDate.setText(dateToString(year, monthOfYear, dayOfMonth));
+                        Calendar ca = Calendar.getInstance();
+                        ca.set(year, monthOfYear, dayOfMonth);
+
+                        txtDate.setText(calendarToString(ca));
                     }
                 }, mYear, mMonth, mDay);
 
@@ -187,15 +205,40 @@ public class TodoActivity extends ActionBarActivity implements EditTodoDialog.Ed
     public static String todayAsString(){
 
         Calendar c = Calendar.getInstance();
+        return calendarToString(c);
+    }
+
+    //gets String version of given calendar
+    public static String calendarToString(Calendar c){
+
         int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
 
-        return dateToString(year, month, day);
+        String out = formatter.format(c.getTime());
+        Log.d(TAG, "calendar string: " + out);
+
+        return out;
     }
 
-    //gets String version of given date
-    public static String dateToString(int year, int month, int day){
-        return year + "-" + (month+1) + "-" + day;
+    //gets String version Date given long time milliseconds
+    public static String longTimeToString(long ms){
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(ms);
+        return calendarToString(cal);
+    }
+
+    //gets the time in milliseconds for a formatted String of a date
+    public static long stringTimeToLong(String stringDate){
+
+        Date date = null;
+        try{
+            date = (Date)formatter.parse(stringDate);
+        }catch(ParseException e){
+            Log.d(TAG, "Exception while parsing the date: " + stringDate);
+            e.printStackTrace();
+        }
+        return date.getTime();
     }
 }

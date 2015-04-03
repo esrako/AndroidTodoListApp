@@ -17,6 +17,8 @@ import android.widget.EditText;
 import android.support.v4.app.DialogFragment;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.Calendar;
 
 /**
@@ -27,7 +29,7 @@ public class EditTodoDialog extends DialogFragment// implements TextView.OnEdito
 
     private EditText mEditText;
     private EditText mEditPri;
-    private EditText mEditDue;
+    private TextView mEditDue;
     private static final String TAG = EditTodoDialog.class.getSimpleName();
     Button saveButton;
     Button pickDateButton;
@@ -73,7 +75,7 @@ public class EditTodoDialog extends DialogFragment// implements TextView.OnEdito
 
         mEditText = (EditText) view.findViewById(R.id.editText);
         mEditPri = (EditText) view.findViewById(R.id.editPri);
-        mEditDue = (EditText) view.findViewById(R.id.txtDate);
+        mEditDue = (TextView) view.findViewById(R.id.txtDate);
         mEditText.setText(oldDesc);
         mEditPri.setText(""+oldPri);
         mEditDue.setText(oldDue);
@@ -132,7 +134,9 @@ public class EditTodoDialog extends DialogFragment// implements TextView.OnEdito
                             @Override
                             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                                 // Display Selected date in textbox
-                                mEditDue.setText(TodoActivity.dateToString(year, monthOfYear, dayOfMonth));
+                                Calendar ca = Calendar.getInstance();
+                                ca.set(year, monthOfYear, dayOfMonth);
+                                mEditDue.setText(TodoActivity.calendarToString(ca));
                             }
                         }, mYear, mMonth, mDay);
 

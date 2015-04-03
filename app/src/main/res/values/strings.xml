@@ -11,4 +11,8 @@
     <string name="Save_button">Save</string>
     <string name="pick_date">Pick a due date</string>
     <string name="edit_item">Edit Item</string>
+    <string name="item_suc_edited">Item successfully edited</string>
+    <string name="item_suc_added">Item successfully added</string>
+    <string name="item_suc_deleted">Item successfully deleted</string>
+
 </resources>

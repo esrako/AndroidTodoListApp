@@ -11,4 +11,7 @@
     <string name="Save_button">Kaydet</string>
     <string name="pick_date">Tarih seçin</string>
     <string name="edit_item">Maddeyi Düzenle</string>
+    <string name="item_suc_added">Madde başarıyla eklendi</string>
+    <string name="item_suc_deleted">Madde başarıyla silindi</string>
+    <string name="item_suc_edited">Madde başarıyla düzenlendi</string>
 </resources>

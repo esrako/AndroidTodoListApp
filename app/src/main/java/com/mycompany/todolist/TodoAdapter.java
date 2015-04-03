@@ -35,7 +35,7 @@ public class TodoAdapter extends ArrayAdapter<TodoItem> {
         // Populate the data into the template view using the data object
         tv_desc.setText(item.description);
         tv_pri.setText(pri);
-        tv_due.setText(item.dueDate);
+        tv_due.setText(item.dueDate + "");
 
         // Return the completed view to render on screen
         return convertView;

@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import java.util.Calendar;
+
 /**
  * Created by ekucukog on 3/28/2015.
  */
@@ -37,7 +39,8 @@ public class TodoCursorAdapter extends CursorAdapter {
         // Extract properties from cursor
         String desc = cursor.getString(cursor.getColumnIndexOrThrow("Description"));
         int pri = cursor.getInt(cursor.getColumnIndexOrThrow("Priority"));
-        String due = cursor.getString(cursor.getColumnIndexOrThrow("Duedate"));
+        long time = cursor.getLong(cursor.getColumnIndexOrThrow("Duedate"));
+        String due = TodoActivity.longTimeToString(time);
 
         // Populate fields with extracted properties
         tv_desc.setText(desc);
