@@ -16,12 +16,10 @@ Functionalities:
 * [x] Optional: Use of a DialogFragment instead of new activity for editing items
 * [x] Optional: Support for picking due dates for todo items via DatePickerDialog and display within list view and edit due dates
 * [x] Optional: Support for picking priority for todo items and display within list view and edit priority
-* [x] Optional: Support for 'turkish' (tr) language via the addition of res/values-tr/string.xml
+* [x] Optional: Sort todo items wrt due dates
+* [x] Optional: Toast messages for add/edit/delete actions
+* [x] Optional: Support for 'Turkish(tr) language' via the addition of res/values-tr/string.xml
 
 Walkthrough:
 
-![alt tag](https://github.com/esrako/TodoList/blob/master/todo_2.gif)
-
-Similar walkthrough when device language is set as Turkish:
-
-![alt tag](https://github.com/esrako/TodoList/blob/master/todo_tr.gif)
+![alt tag](https://github.com/esrako/TodoList/blob/master/todo_3.gif)
